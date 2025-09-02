@@ -24,8 +24,10 @@ app.use(
 // impprt routes
 import { errorMiddleware } from "./middleware/error.middleware.js";
 import userRouter from "./routes/user.routes.js";
+import messageRouter from "./routes/message.routes.js"
 
 app.use("/api/v1/user", userRouter);
+app.use("/api/v1/message", messageRouter);
 
 app.get("/", (req, res) => {
   res.send("server is running ✅ ...");

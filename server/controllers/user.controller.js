@@ -79,10 +79,19 @@ export const logoutUser = asyncHandler(async (req, res) => {
 
 //todo ===== GET ME =====
 export const getMe = asyncHandler(async (req, res) => {
-  
   const user = await User.findById(req.user._id).select("-password");
   if (!user) {
     return res.status(404).json({ success: false, message: "User not found" });
   }
   return res.status(200).json({ success: true, user });
+});
+
+//todo ===== GETOTHERUSERS =====
+export const getOtherUsers = asyncHandler(async (req, res) => {
+  const otherUsers = await User.find({ _id: { $ne: req.user._id } });
+
+  return res.status(200).json({
+    success: true,
+    users: otherUsers,
+  });
 });
