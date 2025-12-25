@@ -4,6 +4,7 @@
   "description": "",
   "main": "index.ts",
   "scripts": {
+    "seed":"ts-node src/seeders/role.seeder.ts",
     "dev": "ts-node-dev --respawn --transpile-only --files src/index.ts",
     "build": "tsc",
     "start": "node dist/index.ts"
@@ -12,6 +13,7 @@
   "author": "",
   "license": "ISC",
   "dependencies": {
+    "bcrypt": "^6.0.0",
     "cookie-session": "^2.1.1",
     "cors": "^2.8.5",
     "dotenv": "^17.2.3",
@@ -24,6 +26,7 @@
     "zod": "^4.2.1"
   },
   "devDependencies": {
+    "@types/bcrypt": "^6.0.0",
     "@types/cookie-session": "^2.0.49",
     "@types/cors": "^2.8.19",
     "@types/express": "^5.0.6",
