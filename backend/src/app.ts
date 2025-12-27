@@ -8,13 +8,16 @@ import { connectDB } from "./services/db.service";
 import { errorMiddleware } from "./middleware/error.middleware";
 
 // Routes
+import authRouter from "./routes/user.routes";
+
 const app: Application = express();
 
+// Connect to Database
 connectDB();
 
+// Middlewares
 app.use(express.json());
 app.use(cookieParser());
-
 app.use(
   cors({
     origin: process.env.FRONTEND_URL,
@@ -22,13 +25,15 @@ app.use(
   })
 );
 
+// Test Route
 app.get("/", (req: Request, res: Response) => {
   res.send("API is running!");
 });
 
- 
+// API Routes
+app.use("/api/v1/auth", authRouter);
 
-/* ERROR */
+// Error Middleware  
 app.use(errorMiddleware);
 
 export default app;
