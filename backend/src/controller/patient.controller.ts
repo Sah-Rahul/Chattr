@@ -16,7 +16,10 @@ export const getPatientProfile = asyncHandler<AuthRequest>(async (req, res) => {
   if (!user) throw new ApiError(401, "Unauthorized");
   if (user.role !== "patient") throw new ApiError(403, "Access denied");
 
-  const patient = await PatientModel.findOne({ userId: user._id });
+  const patient = await PatientModel.findOne({ userId: user._id }).populate(
+    "userId",
+    "name email"
+  );
 
   if (!patient) throw new ApiError(404, "Patient profile not found");
 
@@ -47,7 +50,7 @@ export const getMyAppointments = asyncHandler<AuthRequest>(async (req, res) => {
   if (!user) throw new ApiError(401, "Unauthorized");
 
   const patient = await PatientModel.findOne({ userId: user._id });
-  if (!patient) throw new ApiError(404, "Patient not found");
+  if (!patient) throw new ApiError(404, "You have no booked appointments");
 
   const appointments = await AppointmentModel.find({
     patientId: patient._id,
@@ -63,13 +66,13 @@ export const bookAppointment = asyncHandler<AuthRequest>(async (req, res) => {
   const { doctorId, slotId } = req.body;
 
   const patient = await PatientModel.findOne({ userId: user._id });
-  console.log("patient==============>",patient)
+  console.log("patient==============>", patient);
   if (!patient) throw new ApiError(404, "Patient not found");
 
   const doctor = await DoctorModel.findById(doctorId);
-//   if (!doctor || doctor.status !== "approved") {
-//     throw new ApiError(400, "Doctor not available");
-//   }
+  //   if (!doctor || doctor.status !== "approved") {
+  //     throw new ApiError(400, "Doctor not available");
+  //   }
 
   const slot = await AvailabilitySlotModel.findOne({
     _id: slotId,

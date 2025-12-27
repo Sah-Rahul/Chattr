@@ -8,7 +8,7 @@ export const addDoctor = asyncHandler<AuthRequest>(async (req, res) => {
   const user = req.user;
   if (!user) throw new ApiError(401, "Unauthorized");
   if (user.role !== "management")
-    throw new ApiError(403, "Only doctors allowed");
+    throw new ApiError(403, "Only management can add doctors");
 
   const { specialization, qualification, description, experience, age } =
     req.body;
@@ -28,4 +28,19 @@ export const addDoctor = asyncHandler<AuthRequest>(async (req, res) => {
   });
 
   res.status(201).json(new ApiResponse(201, doctor, "Doctor profile created"));
+});
+
+export const getAllDoctors = asyncHandler<AuthRequest>(async (req, res) => {
+  const user = req.user;
+  if (!user) throw new ApiError(401, "Unauthorized");
+  if (user.role !== "management")
+    throw new ApiError(403, "Only management can view doctors");
+
+  const doctors = await DoctorModel.find()
+    .populate("userId", "name email")  
+    .sort({ createdAt: -1 });
+
+  res
+    .status(200)
+    .json(new ApiResponse(200, doctors, "Doctors fetched successfully"));
 });

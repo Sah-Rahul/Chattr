@@ -13,7 +13,7 @@ import {
 const patientRouter = express.Router();
 
 patientRouter.get("/profile", authMiddleware, getPatientProfile);
-patientRouter.put("/profile", authMiddleware, updatePatientProfile);
+patientRouter.put("/update/profile", authMiddleware, updatePatientProfile);
 
 patientRouter.get("/appointments", authMiddleware, getMyAppointments);
 patientRouter.post("/bookappointment", authMiddleware, bookAppointment);

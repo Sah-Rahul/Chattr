@@ -7,6 +7,7 @@ import { userRegisterSchema } from "../zodSchema/user.schema";
 import { ApiError } from "../utils/ApiError";
 import { ApiResponse } from "../utils/ApiResponse";
 import { sendToken } from "../utils/SendToken";
+import DoctorModel from "../models/doctor.model";
 
 export const registerUser = asyncHandler(async (req: Request, res: Response) => {
     const parsed = userRegisterSchema.parse(req.body);
@@ -26,6 +27,10 @@ export const registerUser = asyncHandler(async (req: Request, res: Response) => 
 
     if (parsed.role === "patient") {
       await PatientModel.create({ userId: user._id });
+    } else if (parsed.role === "doctor") {
+      await DoctorModel.create({
+        userId: user._id
+      });
     }
 
     sendToken({
@@ -92,7 +97,7 @@ export const getProfile = asyncHandler(async (req: Request & { user?: any }, res
   }
 );
 
-export const updateProfile = asyncHandler( async (req: Request & { user?: any }, res: Response) => {
+export const updateProfile = asyncHandler(async (req: Request & { user?: any }, res: Response) => {
     const userId = req.user.id;
     const updates = req.body;
 
