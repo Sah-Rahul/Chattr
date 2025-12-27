@@ -9,6 +9,9 @@ import { errorMiddleware } from "./middleware/error.middleware";
 
 // Routes
 import authRouter from "./routes/user.routes";
+import patientRouter from "./routes/patient.routes";
+import doctorRouter from "./routes/doctor.routes";
+import managementRouter from "./routes/management.routes";
 
 const app: Application = express();
 
@@ -32,6 +35,11 @@ app.get("/", (req: Request, res: Response) => {
 
 // API Routes
 app.use("/api/v1/auth", authRouter);
+app.use("/api/v1/patient", patientRouter);
+app.use("/api/v1/doctor", doctorRouter);
+app.use("/api/v1/management", managementRouter);
+
+
 
 // Error Middleware  
 app.use(errorMiddleware);

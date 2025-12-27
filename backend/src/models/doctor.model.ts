@@ -7,7 +7,9 @@ export interface IDoctor extends Document {
   qualification: string;
   experience: number;
   age: number;
-  status: "pending" | "approved" | "rejected";
+  consultationFee?: number;
+  description: string
+  // status: "pending" | "approved" | "rejected";
 }
 
 const doctorSchema = new Schema<IDoctor>(
@@ -16,7 +18,7 @@ const doctorSchema = new Schema<IDoctor>(
       type: Schema.Types.ObjectId,
       ref: "User",
       required: true,
-      unique: true, // one user = one doctor
+      unique: true,
     },
     departmentId: {
       type: Schema.Types.ObjectId,
@@ -40,15 +42,23 @@ const doctorSchema = new Schema<IDoctor>(
       required: true,
       min: 21,
     },
-    status: {
-      type: String,
-      enum: ["pending", "approved", "rejected"],
-      default: "pending",
+    consultationFee: {       
+      type: Number,
+      min: 0,
     },
+    description: {
+      type: String,
+      required: true,
+    },
+    // status: {
+    //   type: String,
+    //   enum: ["pending", "approved", "rejected"],
+    //   default: "pending",
+    // },
   },
   { timestamps: true }
 );
 
-  const DoctorModel = model<IDoctor>("Doctor", doctorSchema);
+const DoctorModel = model<IDoctor>("Doctor", doctorSchema);
 
-  export default DoctorModel
+export default DoctorModel;
