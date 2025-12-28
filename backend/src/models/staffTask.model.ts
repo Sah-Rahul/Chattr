@@ -1,30 +1,71 @@
 import { Schema, model, Types, Document } from "mongoose";
 
-export type TaskType = "assign" | "followup" | "report";
-export type TaskStatus = "pending" | "done";
-
-export interface IStaffTask extends Document {
-  staffId: Types.ObjectId;
+export interface ITask extends Document {
+  title: string;
+  description?: string;
+  doctorId?: Types.ObjectId;
+  assignedTo: Types.ObjectId;
+  assignedBy: Types.ObjectId;
   patientId?: Types.ObjectId;
   appointmentId?: Types.ObjectId;
-  taskType: TaskType;
-  status: TaskStatus;
+  priority: "low" | "medium" | "high";
+  status: "pending" | "in-progress" | "completed" | "cancelled";
+  dueDate?: Date;
+  completedAt?: Date;
 }
 
-const staffTaskSchema = new Schema<IStaffTask>(
+const taskSchema = new Schema<ITask>(
   {
-    staffId: { type: Schema.Types.ObjectId, ref: "Staff", required: true },
-    patientId: { type: Schema.Types.ObjectId, ref: "Patient" },
-    appointmentId: { type: Schema.Types.ObjectId, ref: "Appointment" },
-    taskType: {
+    title: {
       type: String,
-      enum: ["assign", "followup", "report"],
       required: true,
     },
-    status: { type: String, enum: ["pending", "done"], default: "pending" },
+    description: {
+      type: String,
+    },
+    doctorId: {
+      type: Schema.Types.ObjectId,
+      ref: "Doctor",
+      index: true,
+    },
+    assignedTo: {
+      type: Schema.Types.ObjectId,
+      ref: "Staff",
+      required: true,
+      index: true,
+    },
+    assignedBy: {
+      type: Schema.Types.ObjectId,
+      ref: "User",
+      required: true,
+    },
+    patientId: {
+      type: Schema.Types.ObjectId,
+      ref: "Patient",
+    },
+    appointmentId: {
+      type: Schema.Types.ObjectId,
+      ref: "Appointment",
+    },
+    priority: {
+      type: String,
+      enum: ["low", "medium", "high"],
+      default: "medium",
+    },
+    status: {
+      type: String,
+      enum: ["pending", "in-progress", "completed", "cancelled"],
+      default: "pending",
+    },
+    dueDate: {
+      type: Date,
+    },
+    completedAt: {
+      type: Date,
+    },
   },
   { timestamps: true }
 );
 
-const StaffTaskModel = model<IStaffTask>("StaffTask", staffTaskSchema);
-export default StaffTaskModel;
+const TaskModel = model<ITask>("Task", taskSchema);
+export default TaskModel;

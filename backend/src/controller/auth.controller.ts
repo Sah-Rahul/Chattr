@@ -8,6 +8,8 @@ import { ApiError } from "../utils/ApiError";
 import { ApiResponse } from "../utils/ApiResponse";
 import { sendToken } from "../utils/SendToken";
 import DoctorModel from "../models/doctor.model";
+import StaffModel from "../models/staff.model";
+import ManagementModel from "../models/management.model";
 
 export const registerUser = asyncHandler(async (req: Request, res: Response) => {
     const parsed = userRegisterSchema.parse(req.body);
@@ -29,7 +31,19 @@ export const registerUser = asyncHandler(async (req: Request, res: Response) => 
       await PatientModel.create({ userId: user._id });
     } else if (parsed.role === "doctor") {
       await DoctorModel.create({
-        userId: user._id
+        userId: user._id,
+      });
+    } else if (parsed.role === "staff") {
+      await StaffModel.create({
+        userId: user._id,
+        designation: "General Staff",
+        isActive: true,
+      });
+    } else if (parsed.role === "management") {
+      await ManagementModel.create({
+        userId: user._id,
+        level: "superadmin",
+        isActive: true,
       });
     }
 

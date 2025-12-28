@@ -8,8 +8,8 @@ export interface IDoctor extends Document {
   experience: number;
   age: number;
   consultationFee?: number;
-  description: string
-  // status: "pending" | "approved" | "rejected";
+  description: string;
+  status: "approved";
 }
 
 const doctorSchema = new Schema<IDoctor>(
@@ -42,7 +42,7 @@ const doctorSchema = new Schema<IDoctor>(
       required: true,
       min: 21,
     },
-    consultationFee: {       
+    consultationFee: {
       type: Number,
       min: 0,
     },
@@ -50,11 +50,10 @@ const doctorSchema = new Schema<IDoctor>(
       type: String,
       required: true,
     },
-    // status: {
-    //   type: String,
-    //   enum: ["pending", "approved", "rejected"],
-    //   default: "pending",
-    // },
+    status: {
+      type: String,
+      default: "approved",
+    },
   },
   { timestamps: true }
 );

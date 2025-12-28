@@ -8,7 +8,7 @@ import { ApiResponse } from "../utils/ApiResponse";
 import AppointmentModel from "../models/appointment.model";
 import PatientModel from "../models/patient.model";
 import PrescriptionModel from "../models/prescription.model";
-import MedicalReportModel from "../models/medicalReport.model";
+import MedicalReportModel from "../models/medicalReport.model"; 
 
 export const getTodayAppointments = asyncHandler<AuthRequest>(
   async (req, res) => {
