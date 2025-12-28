@@ -9,6 +9,7 @@ export interface IDoctor extends Document {
   age: number;
   consultationFee?: number;
   description: string;
+  file: string;
   status: "approved";
 }
 
@@ -54,6 +55,10 @@ const doctorSchema = new Schema<IDoctor>(
       type: String,
       default: "approved",
     },
+    file: {
+      type: String,
+      required: true
+    }
   },
   { timestamps: true }
 );

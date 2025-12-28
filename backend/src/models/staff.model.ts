@@ -6,6 +6,7 @@ export interface IStaff extends Document {
   designation: string;
   shift?: "morning" | "evening" | "night";
   isActive: boolean;
+  file: string
 }
 
 const staffSchema = new Schema<IStaff>(
@@ -32,6 +33,10 @@ const staffSchema = new Schema<IStaff>(
       type: Boolean,
       default: true,
     },
+     file: {
+      type: String,
+      required: true
+    }
   },
   { timestamps: true }
 );

@@ -1,3 +1,4 @@
+// controller/management.controller.ts
 import { AuthRequest } from "../middleware/auth.middleware";
 import DoctorModel from "../models/doctor.model";
 import StaffModel from "../models/staff.model";
@@ -7,6 +8,7 @@ import { ApiError } from "../utils/ApiError";
 import { ApiResponse } from "../utils/ApiResponse";
 import asyncHandler from "../utils/AsyncHandler";
 import bcrypt from "bcrypt";
+import { uploadToCloudinary } from "../services/cloudinary.service";
 
 export const addDoctor = asyncHandler<AuthRequest>(async (req, res) => {
   const user = req.user;
@@ -25,10 +27,19 @@ export const addDoctor = asyncHandler<AuthRequest>(async (req, res) => {
     age,
   } = req.body;
 
+  if (!req.file) {
+    throw new ApiError(400, "Doctor profile image is required");
+  }
+
   const existingUser = await UserModel.findOne({ email });
   if (existingUser) {
     throw new ApiError(400, "User with this email already exists");
   }
+
+  const uploadResult = await uploadToCloudinary(
+    req.file.buffer,
+    "hospital/doctors"
+  );
 
   const hashedPassword = await bcrypt.hash(password, 10);
   const doctorUser = await UserModel.create({
@@ -45,6 +56,7 @@ export const addDoctor = asyncHandler<AuthRequest>(async (req, res) => {
     experience,
     age,
     description,
+    file: uploadResult.secure_url,
     status: "approved",
   });
 
@@ -77,6 +89,42 @@ export const getAllDoctors = asyncHandler<AuthRequest>(async (req, res) => {
   res
     .status(200)
     .json(new ApiResponse(200, doctors, "Doctors fetched successfully"));
+});
+
+export const updateDoctor = asyncHandler<AuthRequest>(async (req, res) => {
+  const user = req.user;
+  if (!user) throw new ApiError(401, "Unauthorized");
+  if (user.role !== "management")
+    throw new ApiError(403, "Only management can update doctors");
+
+  const { doctorId } = req.params;
+  const { specialization, qualification, description, experience, age } =
+    req.body;
+
+  const doctor = await DoctorModel.findById(doctorId);
+  if (!doctor) {
+    throw new ApiError(404, "Doctor not found");
+  }
+
+  if (specialization) doctor.specialization = specialization;
+  if (qualification) doctor.qualification = qualification;
+  if (description) doctor.description = description;
+  if (experience) doctor.experience = experience;
+  if (age) doctor.age = age;
+
+  if (req.file) {
+    const uploadResult = await uploadToCloudinary(
+      req.file.buffer,
+      "hospital/doctors"
+    );
+    doctor.file = uploadResult.secure_url;
+  }
+
+  await doctor.save();
+
+  res
+    .status(200)
+    .json(new ApiResponse(200, doctor, "Doctor updated successfully"));
 });
 
 export const updateDoctorStatus = asyncHandler<AuthRequest>(
@@ -142,10 +190,19 @@ export const addStaff = asyncHandler<AuthRequest>(async (req, res) => {
 
   const { name, email, password, designation, shift, departmentId } = req.body;
 
+  if (!req.file) {
+    throw new ApiError(400, "Staff profile image is required");
+  }
+
   const existingUser = await UserModel.findOne({ email });
   if (existingUser) {
     throw new ApiError(400, "User with this email already exists");
   }
+
+  const uploadResult = await uploadToCloudinary(
+    req.file.buffer,
+    "hospital/staff"
+  );
 
   const hashedPassword = await bcrypt.hash(password, 10);
   const staffUser = await UserModel.create({
@@ -160,6 +217,7 @@ export const addStaff = asyncHandler<AuthRequest>(async (req, res) => {
     designation,
     shift,
     departmentId,
+    file: uploadResult.secure_url,
     isActive: true,
   });
 
@@ -206,22 +264,25 @@ export const updateStaff = asyncHandler<AuthRequest>(async (req, res) => {
   const { staffId } = req.params;
   const { designation, shift, departmentId, isActive } = req.body;
 
-  const staff = await StaffModel.findByIdAndUpdate(
-    staffId,
-    {
-      $set: {
-        designation,
-        shift,
-        departmentId,
-        isActive,
-      },
-    },
-    { new: true, runValidators: true }
-  ).populate("userId", "name email");
-
+  const staff = await StaffModel.findById(staffId);
   if (!staff) {
     throw new ApiError(404, "Staff not found");
   }
+
+  if (designation) staff.designation = designation;
+  if (shift) staff.shift = shift;
+  if (departmentId) staff.departmentId = departmentId;
+  if (isActive !== undefined) staff.isActive = isActive;
+
+  if (req.file) {
+    const uploadResult = await uploadToCloudinary(
+      req.file.buffer,
+      "hospital/staff"
+    );
+    staff.file = uploadResult.secure_url;
+  }
+
+  await staff.save();
 
   res
     .status(200)
@@ -253,15 +314,12 @@ export const deleteStaff = asyncHandler<AuthRequest>(async (req, res) => {
     .json(new ApiResponse(200, null, "Staff deleted successfully"));
 });
 
-//  DASHBOARD STATS
-
 export const getDashboardStats = asyncHandler<AuthRequest>(async (req, res) => {
   const user = req.user;
   if (!user) throw new ApiError(401, "Unauthorized");
   if (user.role !== "management")
     throw new ApiError(403, "Only management can view stats");
 
-  // Total counts
   const totalDoctors = await DoctorModel.countDocuments({ status: "approved" });
   const totalStaff = await StaffModel.countDocuments({ isActive: true });
   const totalPatients = await UserModel.countDocuments({
@@ -269,7 +327,6 @@ export const getDashboardStats = asyncHandler<AuthRequest>(async (req, res) => {
     isActive: true,
   });
 
-  // Task statistics
   const totalTasks = await TaskModel.countDocuments();
   const pendingTasks = await TaskModel.countDocuments({ status: "pending" });
   const inProgressTasks = await TaskModel.countDocuments({
@@ -279,12 +336,10 @@ export const getDashboardStats = asyncHandler<AuthRequest>(async (req, res) => {
     status: "completed",
   });
 
-  // Pending approvals
   const pendingDoctors = await DoctorModel.countDocuments({
     status: "pending",
   });
 
-  // Recent tasks
   const recentTasks = await TaskModel.find()
     .populate("assignedTo", "designation")
     .populate("assignedBy", "name role")
