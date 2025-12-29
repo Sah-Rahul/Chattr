@@ -6,7 +6,7 @@ const Home = () => {
   }, []);
 
   return (
-    <div className="h-screen   flex items-center justify-between">
+    <div className="h-screen mb-10  flex items-center justify-between">
       <div className="h-full pt-24 w-1/2 flex flex-col justify-center gap-4   px-10 text-white">
         <h4 className="text-xl uppercase tracking-widest text-[#f7a582] font-semibold">
           We take care of your health

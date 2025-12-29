@@ -135,7 +135,7 @@ const Staff = () => {
     return matchesRole && matchesSearch;
   });
 
-  // Pagination Logic
+ 
   const indexOfLastItem = currentPage * itemsPerPage;
   const indexOfFirstItem = indexOfLastItem - itemsPerPage;
   const currentStaff = filteredStaff.slice(indexOfFirstItem, indexOfLastItem);

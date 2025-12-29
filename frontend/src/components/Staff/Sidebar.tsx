@@ -1,14 +1,10 @@
 import {
   Users,
   Calendar,
-  FileText,
   Activity,
-  DollarSign,
   Settings,
   LayoutDashboard,
-  Stethoscope,
   ClipboardList,
-  UserPlus,
   MessageCircle,
 } from "lucide-react";
 import { Button } from "../ui/button";
@@ -37,63 +33,45 @@ const Sidebar = ({
   const menuItems = [
     {
       id: "dashboard",
-      label: "Dashboard",
+      label: "Staff Dashboard",
       icon: LayoutDashboard,
-      link: "/management/dashboard",
+      link: "/staff/dashboard",
     },
     {
       id: "patients",
-      label: "Patients",
+      label: "Patient Intake",
       icon: Users,
-      link: "/management/patient",
+      link: "/staff/patient",
+    },
+    {
+      id: "wards",
+      label: "Ward Management",
+      icon: Activity,
+      link: "/staff/wards",
     },
     {
       id: "appointments",
-      label: "Appointments",
+      label: "Reception Desk",
       icon: Calendar,
-      link: "/management/appointments",
-    },
-    {
-      id: "doctors",
-      label: "Doctors",
-      icon: Stethoscope,
-      link: "/management/doctor",
-    },
-    {
-      id: "staff",
-      label: "Staff",
-      icon: UserPlus,
-      link: "/management/staff",
-    },
-    {
-      id: "departments",
-      label: "Departments",
-      icon: FileText,
-      link: "/management/departments",
-    },
-    {
-      id: "chat",
-      label: "Chat",
-      icon: MessageCircle,
-      link: "/management/chat",
-    },
-    {
-      id: "reports",
-      label: "Reports",
-      icon: ClipboardList,
-      link: "/management/reports",
+      link: "/staff/appointments",
     },
     {
       id: "billing",
-      label: "Billing",
-      icon: DollarSign,
-      link: "/management/billing",
+      label: "Billing & Cashier",
+      icon: ClipboardList,
+      link: "/staff/billing",
     },
     {
-      id: "settings",
-      label: "Settings",
+      id: "inventory",
+      label: "Stock/Supplies",
       icon: Settings,
-      link: "/management/settings",
+      link: "/staff/inventory",
+    },
+    {
+      id: "chat",
+      label: "Internal Chat",
+      icon: MessageCircle,
+      link: "/staff/chat",
     },
   ];
 
