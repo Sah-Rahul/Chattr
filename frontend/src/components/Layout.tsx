@@ -2,6 +2,7 @@ import { Outlet } from "react-router-dom";
 import Navbar from "./Navbar";
 import Footer from "./Footer";
 import { useEffect, useState, useRef } from "react";
+import Loading from "./Loading";
 
 const MouseFollower = () => {
   const [position, setPosition] = useState({ x: 0, y: 0 });
@@ -127,6 +128,12 @@ const Layout = () => {
       mutationObserver.disconnect();
     };
   }, []);
+
+  const op = false;
+
+  if (op) {
+    return <Loading />;
+  }
 
   return (
     <>

@@ -1,4 +1,10 @@
+import { useEffect } from "react";
+
 const Home = () => {
+  useEffect(() => {
+    window.scrollTo({ top: 0, left: 0, behavior: "smooth" });
+  }, []);
+
   return (
     <div className="h-screen   flex items-center justify-between">
       <div className="h-full pt-24 w-1/2 flex flex-col justify-center gap-4   px-10 text-white">
@@ -17,8 +23,12 @@ const Home = () => {
         </span>
       </div>
 
-      <div className="h-full     w-1/2 relative flex   items-center justify-center  ">
-        <img src="/images/doctor.png" alt="doctor" className="  object-cover" />
+      <div className="h-full  w-1/2 relative flex   items-center justify-center  ">
+        <img
+          src="/images/doctor.png"
+          alt="doctor"
+          className=" mt-28 object-cover"
+        />
       </div>
     </div>
   );
