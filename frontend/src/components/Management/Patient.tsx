@@ -50,6 +50,7 @@ interface PatientData {
   gender: "Male" | "Female" | "Other";
   status: "Admitted" | "Discharged" | "Outpatient";
   phone: string;
+  email: string;
   bloodGroup: string;
   address: string;
 }
@@ -64,6 +65,7 @@ const Patient = () => {
       gender: "Male",
       status: "Admitted",
       phone: "+91 9876543210",
+      email: "sagar@gmail.com",
       bloodGroup: "O+",
       address: "Sector 12, Noida, UP",
     },
@@ -74,6 +76,7 @@ const Patient = () => {
       gender: "Female",
       status: "Outpatient",
       phone: "+91 8877665544",
+      email: "raj@gmail.com",
       bloodGroup: "A-",
       address: "M G Road, Gurgaon, HR",
     },
@@ -84,6 +87,7 @@ const Patient = () => {
       gender: "Male",
       status: "Discharged",
       phone: "+91 7766554433",
+      email: "rahul@gmail.com",
       bloodGroup: "B+",
       address: "Civic Center, Indore, MP",
     },
@@ -333,6 +337,7 @@ const Patient = () => {
                 <TableHead className="font-bold text-center">Age</TableHead>
                 <TableHead className="font-bold">Address</TableHead>
                 <TableHead className="font-bold">Blood</TableHead>
+                <TableHead className="font-bold">Email</TableHead>
                 <TableHead className="font-bold">Contact</TableHead>
                 <TableHead className="text-right font-bold">Actions</TableHead>
               </TableRow>
@@ -383,6 +388,10 @@ const Patient = () => {
                   <TableCell className="font-bold text-slate-700 text-sm">
                     {patient.bloodGroup}
                   </TableCell>
+                  <TableCell className="text-sm text-slate-500 whitespace-nowrap">
+                    {patient.email}
+                  </TableCell>
+
                   <TableCell className="text-sm text-slate-500 whitespace-nowrap">
                     {patient.phone}
                   </TableCell>
