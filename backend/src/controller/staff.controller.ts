@@ -1,4 +1,3 @@
-// controller/staff.controller.ts
 import { AuthRequest } from "../middleware/auth.middleware";
 import StaffModel from "../models/staff.model";
 import PatientModel from "../models/patient.model";

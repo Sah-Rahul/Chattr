@@ -1,33 +1,42 @@
 import { BrowserRouter, Routes, Route } from "react-router-dom";
 import Layout from "./components/Layout";
-import Home from "./components/Home";
 import About from "./pages/About";
 import Service from "./pages/Service";
 import Doctor from "./pages/Doctor";
 import Contact from "./pages/Contact";
 import Login from "./pages/Login";
 import Signup from "./pages/Signup";
+import Home from "./components/Home";
+import Dashboard from "./components/Management/Dashboard";
+import ManagementLayout from "./components/Management/ManagementLayout";
+import DoctorManagement from "./components/Management/DoctorManagement";
+import Patient from "./components/Management/Patient";
+import Staff from "./components/Management/Staff";
 
-const App = () => {
+function App() {
   return (
     <BrowserRouter>
       <Routes>
         <Route path="/" element={<Layout />}>
           <Route index element={<Home />} />
-          <Route path="about-us" element={ <About />} />
-          <Route path="service" element={ <Service />} />
-          <Route path="doctor" element={ <Doctor />} />
-          <Route path="contact-us" element={ <Contact />} />
-          <Route path="login" element={ <Login />} />
-          <Route path="signup" element={ <Signup />} />
+          <Route path="about" element={<About />} />
+          <Route path="service" element={<Service />} />
+          <Route path="doctors" element={<Doctor />} />
+          <Route path="contact" element={<Contact />} />
+          <Route path="login" element={<Login />} />
+          <Route path="signup" element={<Signup />} />
+        </Route>
 
-
-
-
+        <Route path="/management" element={<ManagementLayout />}>
+          <Route path="dashboard" element={<Dashboard />} />
+          <Route path="doctor" element={<DoctorManagement />} />
+          <Route path="patient" element={<Patient />} />
+          <Route path="staff" element={<Staff />} />
+          
         </Route>
       </Routes>
     </BrowserRouter>
   );
-};
+}
 
 export default App;
