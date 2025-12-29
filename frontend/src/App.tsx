@@ -7,11 +7,19 @@ import Contact from "./pages/Contact";
 import Login from "./pages/Login";
 import Signup from "./pages/Signup";
 import Home from "./components/Home";
+// MANAGEMENT
 import Dashboard from "./components/Management/Dashboard";
 import ManagementLayout from "./components/Management/ManagementLayout";
 import DoctorManagement from "./components/Management/DoctorManagement";
 import Patient from "./components/Management/Patient";
 import Staff from "./components/Management/Staff";
+import Chat from "./components/Management/Chat";
+import DoctorDashboard from "./components/Doctor/DoctorDashboard";
+import DoctorLayout from "./components/Doctor/DoctorLayout";
+import Patients from "./components/Doctor/Patients";
+import Appointments from "./components/Doctor/Appointments";
+import Chats from "./components/Doctor/Chats";
+// DOCTOR
 
 function App() {
   return (
@@ -32,7 +40,14 @@ function App() {
           <Route path="doctor" element={<DoctorManagement />} />
           <Route path="patient" element={<Patient />} />
           <Route path="staff" element={<Staff />} />
-          
+          <Route path="chat" element={<Chat />} />
+        </Route>
+
+        <Route path="/doctor" element={<DoctorLayout />}>
+          <Route path="dashboard" element={<DoctorDashboard />} />
+          <Route path="patient" element={<Patients />} />
+          <Route path="appointments" element={<Appointments />} />
+          <Route path="chat" element={<Chats />} />
         </Route>
       </Routes>
     </BrowserRouter>
