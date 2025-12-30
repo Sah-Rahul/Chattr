@@ -1,40 +1,18 @@
 import { Router } from "express";
 import { authMiddleware } from "../middleware/auth.middleware";
-import {
-  acceptAppointment,
-  addPrescription,
-  getPatientHistory,
-  getTodayAppointments,
-  rejectAppointment,
-  setAvailabilitySlots,
-} from "../controller/doctor.controller";
-
+import { createSlot, deleteSlot, getDoctorProfile, getMyAppointments, getMySlots, loginDoctor, updateAppointmentStatus } from "../controller/doctor.controller";
+ 
 const doctorRouter = Router();
 
-doctorRouter.post("/create-slots", authMiddleware, setAvailabilitySlots);
+doctorRouter.post("/login", loginDoctor);
 
-doctorRouter.get("/appointments", authMiddleware, getTodayAppointments);
+doctorRouter.get("/me", authMiddleware, getDoctorProfile);
 
-doctorRouter.patch(
-  "/appointments/:appointmentId/accept",
-  authMiddleware,
-  acceptAppointment
-);
+doctorRouter.post("/slot", authMiddleware, createSlot);
+doctorRouter.get("/slots", authMiddleware, getMySlots);
+doctorRouter.delete("/slot/:id", authMiddleware, deleteSlot);
 
-doctorRouter.patch(
-  "/appointments/:appointmentId/reject",
-  authMiddleware,
-  rejectAppointment
-);
+doctorRouter.get("/appointments", authMiddleware, getMyAppointments);
+doctorRouter.patch("/appointment/:id", authMiddleware, updateAppointmentStatus);
 
-doctorRouter.get("/:patientId/history",
-  authMiddleware,
-  getPatientHistory
-);
-
-doctorRouter.post(
-  "/appointments/:appointmentId/prescription",
-  authMiddleware,
-  addPrescription
-);
 export default doctorRouter;

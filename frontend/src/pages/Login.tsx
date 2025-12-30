@@ -1,12 +1,14 @@
 import { useState } from "react";
 import { Mail, Lock, Eye, EyeOff, ArrowRight } from "lucide-react";
 import { Link, useNavigate } from "react-router-dom";
-import { loginPatient } from "../Api/Patient";
+import { loginPatient } from "../Api/User";
 import { toast } from "sonner";
 import axios from "axios";
+import { useAuthStore } from "../zustand/authStore";
 
 const Login = () => {
   const navigate = useNavigate();
+  const { login } = useAuthStore();
   const [showPassword, setShowPassword] = useState(false);
   const [loading, setLoading] = useState(false);
   const [formData, setFormData] = useState({
@@ -24,9 +26,12 @@ const Login = () => {
 
     try {
       setLoading(true);
+
       const response = await loginPatient(formData);
-      toast.success(` ${response.message}`);
+      login(response.user);
       const role = response.user.role;
+
+      toast.success(` ${response.message}`);
 
       if (role === "management") {
         navigate("/management/dashboard");

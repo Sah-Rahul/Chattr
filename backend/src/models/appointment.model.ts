@@ -1,38 +1,50 @@
-import { Schema, model, Types, Document } from "mongoose";
+import mongoose, { Document, Model, Schema } from "mongoose";
 
 export type AppointmentStatus =
   | "pending"
-  | "accepted"
-  | "completed"
-  | "cancelled";
-export type AppointmentCreatedBy = "patient" | "staff";
+  | "approved"
+  | "rejected"
+  | "cancelled"
+  | "completed";
 
 export interface IAppointment extends Document {
-  patientId: Types.ObjectId;
-  doctorId: Types.ObjectId;
-  slotId?: Types.ObjectId;
+  patientId: mongoose.Types.ObjectId;
+  doctorId: mongoose.Types.ObjectId;
+  slotId: mongoose.Types.ObjectId;
   status: AppointmentStatus;
-  createdBy: AppointmentCreatedBy;
+  createdAt: Date;
+  updatedAt: Date;
 }
 
 const appointmentSchema = new Schema<IAppointment>(
   {
-    patientId: { type: Schema.Types.ObjectId, ref: "Patient", required: true },
-    doctorId: { type: Schema.Types.ObjectId, ref: "Doctor", required: true },
-    slotId: { type: Schema.Types.ObjectId, ref: "AvailabilitySlot" },
+    patientId: {
+      type: Schema.Types.ObjectId,
+      ref: "User",
+      required: true,
+    },
+    doctorId: {
+      type: Schema.Types.ObjectId,
+      ref: "User",
+      required: true,
+    },
+    slotId: {
+      type: Schema.Types.ObjectId,
+      ref: "Slot",
+      required: true,
+    },
     status: {
       type: String,
-      enum: ["pending", "accepted", "completed", "cancelled"],
+      enum: ["pending", "approved", "rejected", "cancelled", "completed"],
       default: "pending",
-    },
-    createdBy: {
-      type: String,
-      enum: ["patient", "staff"],
-      required: true,
     },
   },
   { timestamps: true }
 );
 
-const AppointmentModel = model<IAppointment>("Appointment", appointmentSchema);
+const AppointmentModel: Model<IAppointment> = mongoose.model<IAppointment>(
+  "Appointment",
+  appointmentSchema
+);
+
 export default AppointmentModel;

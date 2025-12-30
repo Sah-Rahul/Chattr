@@ -1,6 +1,6 @@
-import { Document, Schema, model } from "mongoose";
+import mongoose, { Document, Model, Schema } from "mongoose";
 
-export type UserRole = "patient" | "doctor" | "staff" | "management";
+export type UserRole = "patient" | "doctor" | "management";
 
 export interface IUser extends Document {
   name: string;
@@ -8,24 +8,24 @@ export interface IUser extends Document {
   password: string;
   role: UserRole;
   isActive: boolean;
-  isDeleted: boolean;
+  createdAt: Date;
+  updatedAt: Date;
 }
 
 const userSchema = new Schema<IUser>(
   {
-    name: { type: String, required: true },
-    email: { type: String, unique: true, required: true },
-    password: { type: String, required: true, select: false  },
+    name: { type: String, required: true, trim: true },
+    email: { type: String, required: true, unique: true, lowercase: true },
+    password: { type: String, required: true, select: false },
     role: {
       type: String,
-      enum: ["patient", "doctor", "staff", "management"],
-      required: true,
+      enum: ["patient", "doctor", "management"],
+      default: "patient",
     },
     isActive: { type: Boolean, default: true },
-    isDeleted: { type: Boolean, default: false },
   },
   { timestamps: true }
 );
 
-const UserModel = model<IUser>("User", userSchema);
+const UserModel: Model<IUser> = mongoose.model<IUser>("User", userSchema);
 export default UserModel;

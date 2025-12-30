@@ -1,11 +1,13 @@
-import { Schema, model, Types, Document } from "mongoose";
+import mongoose, { Document, Model, Schema } from "mongoose";
 
 export interface IPatient extends Document {
-  userId: Types.ObjectId;
+  userId: mongoose.Types.ObjectId;
   age?: number;
-  gender?: string;
-  bloodGroup?: string;
-  emergencyContact?: string; 
+  gender?: "male" | "female" | "other";
+  phone?: string;
+  address?: string;
+  createdAt: Date;
+  updatedAt: Date;
 }
 
 const patientSchema = new Schema<IPatient>(
@@ -14,15 +16,21 @@ const patientSchema = new Schema<IPatient>(
       type: Schema.Types.ObjectId,
       ref: "User",
       required: true,
-      unique: true
+      unique: true,
     },
     age: Number,
-    gender: String,
-    bloodGroup: String,
-    emergencyContact: String,
+    gender: {
+      type: String,
+      enum: ["male", "female", "other"],
+    },
+    phone: String,
+    address: String,
   },
   { timestamps: true }
 );
 
-const PatientModel = model<IPatient>("Patient", patientSchema);
+const PatientModel: Model<IPatient> = mongoose.model<IPatient>(
+  "Patient",
+  patientSchema
+);
 export default PatientModel;

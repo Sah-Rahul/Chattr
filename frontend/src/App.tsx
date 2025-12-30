@@ -6,10 +6,7 @@ import Doctor from "./pages/Doctor";
 import Contact from "./pages/Contact";
 import Login from "./pages/Login";
 import Signup from "./pages/Signup";
-import Home from "./components/Home"; 
-
- 
-
+import Home from "./components/Home";
 // MANAGEMENT
 import Dashboard from "./components/Management/Dashboard";
 import ManagementLayout from "./components/Management/ManagementLayout";
@@ -23,8 +20,6 @@ import DoctorLayout from "./components/Doctor/DoctorLayout";
 import Patients from "./components/Doctor/Patients";
 import Appointments from "./components/Doctor/Appointments";
 import Chats from "./components/Doctor/Chats";
-import StaffLayout from "./components/Staff/StaffLayout";
-import StaffDashboard from "./components/Staff/StaffDashboard";
 // USER
 import UserLayout from "./components/User/UserLayout";
 import UserDashboard from "./components/User/UserDashboard";
@@ -67,10 +62,6 @@ function App() {
           <Route path="patient" element={<Patients />} />
           <Route path="appointments" element={<Appointments />} />
           <Route path="chat" element={<Chats />} />
-        </Route>
-        // STAFF
-        <Route path="/staff" element={<StaffLayout />}>
-          <Route path="dashboard" element={<StaffDashboard />} />
         </Route>
       </Routes>
       <Toaster />

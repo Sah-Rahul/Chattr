@@ -1,16 +1,18 @@
-import { Schema, model, Types, Document } from "mongoose";
+import mongoose, { Document, Model, Schema } from "mongoose";
+
+export type DoctorStatus = "pending" | "approved";
 
 export interface IDoctor extends Document {
-  userId: Types.ObjectId;
-  departmentId?: Types.ObjectId;
+  userId: mongoose.Types.ObjectId;
   specialization: string;
-  qualification: string;
-  experience: number;
-  age: number;
-  consultationFee?: number;
-  description: string;
-  file: string;
-  status: "approved";
+  qualification?: string;
+  experience?: number;
+  age?: number;
+  description?: string;
+  image?: string;
+  status: DoctorStatus;
+  createdAt: Date;
+  updatedAt: Date;
 }
 
 const doctorSchema = new Schema<IDoctor>(
@@ -21,48 +23,23 @@ const doctorSchema = new Schema<IDoctor>(
       required: true,
       unique: true,
     },
-    departmentId: {
-      type: Schema.Types.ObjectId,
-      ref: "Department",
-    },
-    specialization: {
-      type: String,
-      required: true,
-    },
-    qualification: {
-      type: String,
-      required: true,
-    },
-    experience: {
-      type: Number,
-      required: true,
-      min: 0,
-    },
-    age: {
-      type: Number,
-      required: true,
-      min: 21,
-    },
-    consultationFee: {
-      type: Number,
-      min: 0,
-    },
-    description: {
-      type: String,
-      required: true,
-    },
+    specialization: { type: String, required: true },
+    qualification: String,
+    experience: Number,
+    age: Number,
+    description: String,
+    image: String,
     status: {
       type: String,
+      enum: ["pending", "approved"],
       default: "approved",
     },
-    file: {
-      type: String,
-      required: true
-    }
   },
   { timestamps: true }
 );
 
-const DoctorModel = model<IDoctor>("Doctor", doctorSchema);
-
+const DoctorModel: Model<IDoctor> = mongoose.model<IDoctor>(
+  "Doctor",
+  doctorSchema
+);
 export default DoctorModel;

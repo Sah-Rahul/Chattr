@@ -1,7 +1,7 @@
 import { ArrowRight, Eye, EyeOff, Lock, Mail, User } from "lucide-react";
 import { useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
-import { registerPatient } from "../Api/Patient";
+import { registerPatient } from "../Api/User";
 import { toast } from "sonner";
 import axios from "axios";
 
