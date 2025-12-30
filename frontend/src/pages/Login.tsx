@@ -25,8 +25,18 @@ const Login = () => {
     try {
       setLoading(true);
       const response = await loginPatient(formData);
-      toast.success(`Welcome back ${response.user.name}`);
-      navigate("/");
+      toast.success(` ${response.message}`);
+      const role = response.user.role;
+
+      if (role === "management") {
+        navigate("/management/dashboard");
+      } else if (role === "doctor") {
+        navigate("/doctor/dashboard");
+      } else if (role === "staff") {
+        navigate("/staff/dashboard");
+      } else {
+        navigate("/patient/dashboard");
+      }
     } catch (error: unknown) {
       if (axios.isAxiosError(error)) {
         toast.error(error.response?.data?.message || "Invalid credentials");
