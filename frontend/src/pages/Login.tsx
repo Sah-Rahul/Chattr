@@ -1,21 +1,45 @@
 import { useState } from "react";
 import { Mail, Lock, Eye, EyeOff, ArrowRight } from "lucide-react";
-import { Link } from "react-router-dom"; 
+import { Link, useNavigate } from "react-router-dom";
+import { loginPatient } from "../Api/Patient";
+import { toast } from "sonner";
+import axios from "axios";
 
 const Login = () => {
+  const navigate = useNavigate();
   const [showPassword, setShowPassword] = useState(false);
+  const [loading, setLoading] = useState(false);
   const [formData, setFormData] = useState({
     email: "",
     password: "",
   });
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    console.log("Login:", formData);
+
+    if (!formData.email || !formData.password) {
+      toast.error("Please fill all fields");
+      return;
+    }
+
+    try {
+      setLoading(true);
+      const response = await loginPatient(formData);
+      toast.success(`Welcome back ${response.user.name}`);
+      navigate("/");
+    } catch (error: unknown) {
+      if (axios.isAxiosError(error)) {
+        toast.error(error.response?.data?.message || "Invalid credentials");
+      } else {
+        toast.error("Something went wrong");
+      }
+    } finally {
+      setLoading(false);
+    }
   };
 
   return (
-    <div className="mt-16 bg-linear-to-br from-[#06332e] to-[#084d45] flex items-center justify-center px-4 py-12">
+    <div className="min-h-screen bg-linear-to-br from-[#06332e] to-[#084d45] flex items-center justify-center px-4 py-12">
       <div className="max-w-md w-full">
         <div
           className="bg-white rounded-2xl shadow-2xl p-8 md:p-10"
@@ -31,7 +55,7 @@ const Login = () => {
             <p className="text-gray-600">Sign in to your account</p>
           </div>
 
-          <div className="space-y-5">
+          <form onSubmit={handleSubmit} className="space-y-5">
             <div>
               <label className="block text-sm font-semibold text-gray-700 mb-2">
                 Email Address
@@ -42,10 +66,11 @@ const Login = () => {
                   type="email"
                   placeholder="Enter your email"
                   value={formData.email}
+                  disabled={loading}
                   onChange={(e) =>
                     setFormData({ ...formData, email: e.target.value })
                   }
-                  className="w-full pl-11 pr-4 py-3 border-2 border-gray-200 rounded-lg focus:border-[#f7a582] focus:outline-none transition-colors"
+                  className="w-full pl-11 pr-4 py-3 border-2 border-gray-200 rounded-lg focus:border-[#f7a582] focus:outline-none transition-colors disabled:bg-gray-100"
                 />
               </div>
             </div>
@@ -60,14 +85,16 @@ const Login = () => {
                   type={showPassword ? "text" : "password"}
                   placeholder="Enter your password"
                   value={formData.password}
+                  disabled={loading}
                   onChange={(e) =>
                     setFormData({ ...formData, password: e.target.value })
                   }
-                  className="w-full pl-11 pr-12 py-3 border-2 border-gray-200 rounded-lg focus:border-[#f7a582] focus:outline-none transition-colors"
+                  className="w-full pl-11 pr-12 py-3 border-2 border-gray-200 rounded-lg focus:border-[#f7a582] focus:outline-none transition-colors disabled:bg-gray-100"
                 />
                 <button
                   type="button"
                   onClick={() => setShowPassword(!showPassword)}
+                  disabled={loading}
                   className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 hover:text-gray-600"
                 >
                   {showPassword ? (
@@ -80,13 +107,19 @@ const Login = () => {
             </div>
 
             <button
-              onClick={handleSubmit}
-              className="w-full bg-[#06332e] hover:bg-[#084d45] text-white font-semibold py-3 rounded-lg transition-colors flex items-center justify-center gap-2"
+              type="submit"
+              disabled={loading}
+              className={`w-full font-semibold py-3 rounded-lg transition-colors flex items-center justify-center gap-2
+                ${
+                  loading
+                    ? "bg-gray-400 cursor-not-allowed"
+                    : "bg-[#06332e] hover:bg-[#084d45] text-white"
+                }`}
             >
-              Sign In
-              <ArrowRight className="w-5 h-5" />
+              {loading ? "Signing In..." : "Sign In"}
+              {!loading && <ArrowRight className="w-5 h-5" />}
             </button>
-          </div>
+          </form>
 
           <p className="text-center mt-6 text-gray-600">
             Don't have an account?{" "}

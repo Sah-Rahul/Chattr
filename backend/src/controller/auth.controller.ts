@@ -6,17 +6,16 @@ import PatientModel from "../models/patient.model";
 import { userRegisterSchema } from "../zodSchema/user.schema";
 import { ApiError } from "../utils/ApiError";
 import { ApiResponse } from "../utils/ApiResponse";
-import { sendToken } from "../utils/SendToken";
-import DoctorModel from "../models/doctor.model";
-import StaffModel from "../models/staff.model";
-import ManagementModel from "../models/management.model";
+import { sendToken } from "../utils/SendToken"; 
 
-export const registerUser = asyncHandler(async (req: Request, res: Response) => {
+export const registerUser = asyncHandler(
+  async (req: Request, res: Response) => {
     const parsed = userRegisterSchema.parse(req.body);
 
     const existingUser = await UserModel.findOne({ email: parsed.email });
-    if (existingUser)
+    if (existingUser) {
       return res.status(400).json(new ApiError(400, "Email already exists"));
+    }
 
     const hashedPassword = await bcrypt.hash(parsed.password, 10);
 
@@ -24,28 +23,12 @@ export const registerUser = asyncHandler(async (req: Request, res: Response) => 
       name: parsed.name,
       email: parsed.email,
       password: hashedPassword,
-      role: parsed.role,
+      role: "patient",
     });
 
-    if (parsed.role === "patient") {
-      await PatientModel.create({ userId: user._id });
-    } else if (parsed.role === "doctor") {
-      await DoctorModel.create({
-        userId: user._id,
-      });
-    } else if (parsed.role === "staff") {
-      await StaffModel.create({
-        userId: user._id,
-        designation: "General Staff",
-        isActive: true,
-      });
-    } else if (parsed.role === "management") {
-      await ManagementModel.create({
-        userId: user._id,
-        level: "superadmin",
-        isActive: true,
-      });
-    }
+    await PatientModel.create({
+      userId: user._id,
+    });
 
     sendToken({
       user: {
@@ -58,10 +41,6 @@ export const registerUser = asyncHandler(async (req: Request, res: Response) => 
       res,
       message: "User registered successfully",
     });
-
-    return res
-      .status(201)
-      .json(new ApiResponse(201, "User registered successfully"));
   }
 );
 
@@ -94,7 +73,8 @@ export const logoutUser = asyncHandler(async (_req: Request, res: Response) => {
   return res.status(200).json(new ApiResponse(200, "Logout successful"));
 });
 
-export const getProfile = asyncHandler(async (req: Request & { user?: any }, res: Response) => {
+export const getProfile = asyncHandler(
+  async (req: Request & { user?: any }, res: Response) => {
     const userId = req.user.id;
 
     const user = await UserModel.findById(userId).select("-password");
@@ -111,7 +91,8 @@ export const getProfile = asyncHandler(async (req: Request & { user?: any }, res
   }
 );
 
-export const updateProfile = asyncHandler(async (req: Request & { user?: any }, res: Response) => {
+export const updateProfile = asyncHandler(
+  async (req: Request & { user?: any }, res: Response) => {
     const userId = req.user.id;
     const updates = req.body;
 

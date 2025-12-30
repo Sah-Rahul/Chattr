@@ -6,7 +6,10 @@ import Doctor from "./pages/Doctor";
 import Contact from "./pages/Contact";
 import Login from "./pages/Login";
 import Signup from "./pages/Signup";
-import Home from "./components/Home";
+import Home from "./components/Home"; 
+
+ 
+
 // MANAGEMENT
 import Dashboard from "./components/Management/Dashboard";
 import ManagementLayout from "./components/Management/ManagementLayout";
@@ -27,6 +30,7 @@ import UserLayout from "./components/User/UserLayout";
 import UserDashboard from "./components/User/UserDashboard";
 import UserAppointments from "./components/User/UserAppointments";
 import FindDoctoers from "./components/User/FindDoctoers";
+import { Toaster } from "./components/ui/sonner";
 
 function App() {
   return (
@@ -69,6 +73,7 @@ function App() {
           <Route path="dashboard" element={<StaffDashboard />} />
         </Route>
       </Routes>
+      <Toaster />
     </BrowserRouter>
   );
 }
