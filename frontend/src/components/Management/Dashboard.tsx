@@ -18,7 +18,7 @@ import { Button } from "../ui/button";
 import { Badge } from "../ui/badge";
 import { fetchDoctors, fetchPatients } from "../../Api/Management";
 
-interface Doctor {
+export interface Doctor {
   name: string;
   phone: string;
   email: string;
