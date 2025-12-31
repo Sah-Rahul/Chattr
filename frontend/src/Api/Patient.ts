@@ -30,3 +30,8 @@ export const getPatientProfile = async () => {
   const { data } = await axiosInstance.post("/api/v1/auth/patient/profile");
   return data;
 };
+
+export const bookAppointment = async () => {
+  const { data } = await axiosInstance.post("/api/v1/auth/patient/appointment");
+  return data;
+};
