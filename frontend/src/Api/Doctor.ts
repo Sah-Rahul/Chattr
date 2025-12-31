@@ -5,6 +5,13 @@ export const getMyAppointments = async () => {
   return data.data;
 };
 
+export const getDoctorById = async (id: string) => {
+  const { data } = await axiosInstance.get(`/api/v1/doctor/${id}`);
+  return data;
+};
+
+
+
 export const updateAppointmentStatus = async (
   id: string,
   status: "approved" | "cancelled"

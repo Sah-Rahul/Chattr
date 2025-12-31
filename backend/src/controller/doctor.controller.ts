@@ -9,11 +9,12 @@ import { ApiResponse } from "../utils/ApiResponse";
 import { sendToken } from "../utils/SendToken";
 import { AuthRequest } from "../middleware/auth.middleware";
 
- 
 export const loginDoctor = asyncHandler(async (req, res) => {
   const { email, password } = req.body;
 
-  const user = await User.findOne({ email, role: "doctor" }).select("+password");
+  const user = await User.findOne({ email, role: "doctor" }).select(
+    "+password"
+  );
   if (!user || !(await bcrypt.compare(password, user.password)))
     throw new ApiError(401, "Invalid credentials");
 
@@ -24,7 +25,6 @@ export const loginDoctor = asyncHandler(async (req, res) => {
   });
 });
 
- 
 export const getDoctorProfile = asyncHandler<AuthRequest>(async (req, res) => {
   const doctor = await Doctor.findOne({ userId: req.user!._id }).populate(
     "userId",
@@ -32,8 +32,22 @@ export const getDoctorProfile = asyncHandler<AuthRequest>(async (req, res) => {
   );
   res.json(new ApiResponse(200, doctor));
 });
+export const getDoctorById = asyncHandler<AuthRequest>(async (req, res) => {
+  const { id } = req.params;
 
- 
+  if (!id) {
+    return res.status(400).json(new ApiError(400, "Doctor ID is required"));
+  }
+
+  const doctor = await Doctor.findById(id);
+
+  if (!doctor) {
+    return res.status(404).json(new ApiError(404, "Doctor not found"));
+  }
+
+  return res.status(200).json(new ApiResponse(200, doctor));
+});
+
 export const createSlot = asyncHandler<AuthRequest>(async (req, res) => {
   const slot = await Slot.create({
     doctorId: req.user!._id,
@@ -52,7 +66,6 @@ export const getMySlots = asyncHandler<AuthRequest>(async (req, res) => {
   res.json(new ApiResponse(200, slots));
 });
 
- 
 export const getMyAppointments = asyncHandler<AuthRequest>(async (req, res) => {
   const list = await Appointment.find({ doctorId: req.user!._id }).populate(
     "patientId slotId"

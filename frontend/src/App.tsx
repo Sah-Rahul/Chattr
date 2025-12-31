@@ -10,7 +10,7 @@ import Home from "./components/Home";
 // MANAGEMENT
 import Dashboard from "./components/Management/Dashboard";
 import ManagementLayout from "./components/Management/ManagementLayout";
-import DoctorManagement from "./components/Management/DoctorManagement"; 
+import DoctorManagement from "./components/Management/DoctorManagement";
 import Chat from "./components/Management/Chat";
 // DOCTOR
 import DoctorDashboard from "./components/Doctor/DoctorDashboard";
@@ -25,6 +25,7 @@ import UserAppointments from "./components/User/UserAppointments";
 import FindDoctoers from "./components/User/FindDoctoers";
 import { Toaster } from "./components/ui/sonner";
 import Appointment from "./components/Management/Appointment";
+import DoctorDetails from "./pages/DoctorDetails";
 
 function App() {
   return (
@@ -39,18 +40,19 @@ function App() {
           <Route path="login" element={<Login />} />
           <Route path="signup" element={<Signup />} />
         </Route>
+        <Route path="/details/doctor/:id" element={<DoctorDetails />} />
         // USER
         <Route path="/patient" element={<UserLayout />}>
           <Route path="dashboard" element={<UserDashboard />} />
           <Route path="appointments" element={<UserAppointments />} />
-          <Route path="doctors" element={<FindDoctoers />} /> 
+          <Route path="doctors" element={<FindDoctoers />} />
           <Route path="chat" element={<Chat />} />
         </Route>
         // MANAGEMENT
         <Route path="/management" element={<ManagementLayout />}>
           <Route path="dashboard" element={<Dashboard />} />
           <Route path="appointments" element={<Appointment />} />
-          <Route path="doctor" element={<DoctorManagement />} /> 
+          <Route path="doctor" element={<DoctorManagement />} />
           <Route path="chat" element={<Chat />} />
         </Route>
         // DOCTOR

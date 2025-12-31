@@ -53,7 +53,6 @@ export const logoutPatient = asyncHandler(async (_req, res) => {
   res.json(new ApiResponse(200, null, "Logged out"));
 });
 
- 
 export const getPatientProfile = asyncHandler<AuthRequest>(async (req, res) => {
   const patient = await Patient.findOne({ userId: req.user!._id }).populate(
     "userId",
