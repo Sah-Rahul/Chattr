@@ -1,10 +1,10 @@
 import { useState } from "react";
 import { Mail, Lock, Eye, EyeOff, ArrowRight } from "lucide-react";
 import { Link, useNavigate } from "react-router-dom";
-import { loginPatient } from "../Api/User";
 import { toast } from "sonner";
 import axios from "axios";
 import { useAuthStore } from "../zustand/authStore";
+import { loginPatient } from "../Api/Patient";
 
 const Login = () => {
   const navigate = useNavigate();
@@ -37,8 +37,6 @@ const Login = () => {
         navigate("/management/dashboard");
       } else if (role === "doctor") {
         navigate("/doctor/dashboard");
-      } else if (role === "staff") {
-        navigate("/staff/dashboard");
       } else {
         navigate("/patient/dashboard");
       }

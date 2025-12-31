@@ -1,14 +1,10 @@
 import {
-  Users,
   Calendar,
-  FileText,
   Activity,
   DollarSign,
   Settings,
   LayoutDashboard,
   Stethoscope,
-  ClipboardList,
-  UserPlus,
   MessageCircle,
 } from "lucide-react";
 import { Button } from "../ui/button";
@@ -42,12 +38,6 @@ const Sidebar = ({
       link: "/management/dashboard",
     },
     {
-      id: "patients",
-      label: "Patients",
-      icon: Users,
-      link: "/management/patient",
-    },
-    {
       id: "appointments",
       label: "Appointments",
       icon: Calendar,
@@ -60,28 +50,10 @@ const Sidebar = ({
       link: "/management/doctor",
     },
     {
-      id: "staff",
-      label: "Staff",
-      icon: UserPlus,
-      link: "/management/staff",
-    },
-    {
-      id: "departments",
-      label: "Departments",
-      icon: FileText,
-      link: "/management/departments",
-    },
-    {
       id: "chat",
       label: "Chat",
       icon: MessageCircle,
       link: "/management/chat",
-    },
-    {
-      id: "reports",
-      label: "Reports",
-      icon: ClipboardList,
-      link: "/management/reports",
     },
     {
       id: "billing",

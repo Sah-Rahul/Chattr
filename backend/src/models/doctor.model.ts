@@ -30,8 +30,7 @@ const doctorSchema = new Schema<IDoctor>(
     description: String,
     image: String,
     status: {
-      type: String,
-      enum: ["pending", "approved"],
+      type: String, 
       default: "approved",
     },
   },

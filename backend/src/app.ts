@@ -33,7 +33,7 @@ app.get("/", (req: Request, res: Response) => {
 });
 
 // API Routes
-app.use("/api/v1/patient", patientRouter);
+app.use("/api/v1/auth/patient", patientRouter);
 app.use("/api/v1/doctor", doctorRouter);
 app.use("/api/v1/management", managementRouter);
 

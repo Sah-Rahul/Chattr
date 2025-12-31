@@ -43,11 +43,13 @@ const Navbar = () => {
 
   const handleLogout = () => {
     logout();
-    toast.success("Logout successfull")
+    toast.success("Logout successfull");
     navigate("/login");
   };
 
   const getInitials = (name: string) => {
+    if (!name) return "U";
+
     return name
       .split(" ")
       .map((n) => n[0])
@@ -89,9 +91,9 @@ const Navbar = () => {
               <DropdownMenuTrigger asChild>
                 <button className="flex items-center gap-2 hover:opacity-80 transition-opacity focus:outline-none">
                   <Avatar className="w-10 h-10 border-2 border-[#f7a582]">
-                    <AvatarImage src={""} alt={user.fullName} />
+                    <AvatarImage src={""} alt={user.name} />
                     <AvatarFallback className="bg-[#f7a582] text-white font-bold">
-                      {getInitials(user.fullName)}
+                      {getInitials(user.name)}
                     </AvatarFallback>
                   </Avatar>
                 </button>
@@ -100,7 +102,7 @@ const Navbar = () => {
                 <DropdownMenuLabel>
                   <div className="flex flex-col space-y-1">
                     <p className="text-sm font-medium leading-none">
-                      {user.fullName}
+                      {user.name}
                     </p>
                     <p className="text-xs leading-none text-muted-foreground">
                       {user.email}
@@ -167,13 +169,13 @@ const Navbar = () => {
           {user && isAuthenticated && (
             <div className="flex flex-col items-center gap-3 mb-4">
               <Avatar className="w-16 h-16 border-2 border-[#06332e]">
-                <AvatarImage src={"/images/doctor.png"} alt={user.fullName} />
+                <AvatarImage src={"/images/doctor.png"} alt={user.name} />
                 <AvatarFallback className="bg-[#06332e] text-white font-bold text-xl">
-                  {getInitials(user.fullName)}
+                  {getInitials(user.name)}
                 </AvatarFallback>
               </Avatar>
               <div className="text-center">
-                <p className="font-semibold text-gray-800">{user.fullName}</p>
+                <p className="font-semibold text-gray-800">{user.name}</p>
                 <p className="text-sm text-gray-500">{user.email}</p>
               </div>
             </div>

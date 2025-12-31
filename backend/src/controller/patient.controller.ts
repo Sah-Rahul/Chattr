@@ -37,12 +37,12 @@ export const registerPatient = asyncHandler(async (req, res) => {
 export const loginPatient = asyncHandler(async (req, res) => {
   const { email, password } = req.body;
 
-  const user = await User.findOne({ email, role: "patient" }).select("+password");
+  const user = await User.findOne({ email }).select("+password");
   if (!user || !(await bcrypt.compare(password, user.password)))
     throw new ApiError(401, "Invalid credentials");
 
   sendToken({
-    user: { id: user._id.toString(), name: user.name, role: user.role },
+    user: { id: user._id.toString(), name: user.name, role: user.role,email: user.email, },
     res,
     statusCode: 200,
   });

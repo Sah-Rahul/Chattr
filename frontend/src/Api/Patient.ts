@@ -1,21 +1,32 @@
 import { axiosInstance } from "./axiosInstance";
 
-interface AddPatient {
-  fullname: string;
-  phone: string;
-  age: number;
-  blood: string;
-  gender: "male" | "female" | "other"
-  address: string
+interface RegisterForm {
+  name: string;
+  email: string;
+  password: string;
 }
 
+interface LoginForm {
+  email: string;
+  password: string;
+}
 
-export const addPatient = async (form: AddPatient) => {
-  const { data } = await axiosInstance.post("/api/v1/management/doctors", form);
+export const registerPatient = async (form: RegisterForm) => {
+  const { data } = await axiosInstance.post("/api/v1/auth/patient/register", form);
   return data;
 };
 
-export const fetchDoctors = async () => {
-  const { data } = await axiosInstance.get("/api/v1/management/all/doctors");
-  return data?.data;
+export const loginPatient = async (form: LoginForm) => {
+  const { data } = await axiosInstance.post("/api/v1/auth/patient/login", form);
+  return data;
+};
+
+export const logoutPatient = async () => {
+  const { data } = await axiosInstance.post("/api/v1/auth/patient/logout");
+  return data;
+};
+
+export const getPatientProfile = async () => {
+  const { data } = await axiosInstance.post("/api/v1/auth/patient/profile");
+  return data;
 };

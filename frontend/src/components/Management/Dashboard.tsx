@@ -16,27 +16,63 @@ import {
 } from "../ui/card";
 import { Button } from "../ui/button";
 import { Badge } from "../ui/badge";
+import { fetchDoctors, fetchPatients } from "../../Api/Management";
+
+interface Doctor {
+  name: string;
+  phone: string;
+  email: string;
+  age: number;
+  experience: string;
+  qualification: string;
+  specialization: string;
+  description: string;
+}
+
+interface Patient {
+  _id: string;
+  userId: {
+    name: string;
+    email: string;
+  };
+  age: number;
+  gender: string;
+}
 
 const Dashboard = () => {
-  const [stats, setStats] = useState({
-    totalPatients: 0,
-    totalDoctors: 0,
-    totalStaff: 0,
-  });
+  const [doctor, setDoctor] = useState<Doctor[]>([]);
+  const [patients, setPatients] = useState<Patient[]>([]);
 
-  const [recentActivities, setRecentActivities] = useState([
+  const [recentActivities] = useState([
     { text: "New patient registered", time: "5 min ago" },
     { text: "Doctor updated schedule", time: "12 min ago" },
     { text: "Staff added to payroll", time: "1 hour ago" },
     { text: "Appointment confirmed", time: "2 hours ago" },
   ]);
+ 
+  const getDoctor = async () => {
+    try {
+      const res = await fetchDoctors();
+      setDoctor(res || []);
+      console.log("Doctors =>", res);
+    } catch (error) {
+      console.error(error);
+    }
+  };
+ 
+  const getPatients = async () => {
+    try {
+      const res = await fetchPatients();
+      setPatients(res || []);
+      console.log("Patients =>", res);
+    } catch (error) {
+      console.error(error);
+    }
+  };
 
   useEffect(() => {
-    setStats({
-      totalPatients: 2847,
-      totalDoctors: 124,
-      totalStaff: 156,
-    });
+    getDoctor();
+    getPatients();
   }, []);
 
   return (
@@ -45,13 +81,13 @@ const Dashboard = () => {
         <h1 className="text-3xl font-bold text-gray-800">Dashboard</h1>
         <p className="text-gray-600 mt-1">Welcome to your hospital dashboard</p>
       </div>
-
+ 
       <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
         <Card className="hover:shadow-lg transition-shadow">
           <CardContent className="flex items-center justify-between">
             <div>
               <p className="text-gray-500 text-sm">Total Patients</p>
-              <h2 className="text-2xl font-bold">{stats.totalPatients}</h2>
+              <h2 className="text-2xl font-bold">{patients.length}</h2>
               <Badge className="mt-2 bg-green-100 text-green-700">+12.5%</Badge>
             </div>
             <div className="w-14 h-14 bg-blue-500 rounded-full flex items-center justify-center">
@@ -64,7 +100,7 @@ const Dashboard = () => {
           <CardContent className="flex items-center justify-between">
             <div>
               <p className="text-gray-500 text-sm">Total Doctors</p>
-              <h2 className="text-2xl font-bold">{stats.totalDoctors}</h2>
+              <h2 className="text-2xl font-bold">{doctor.length}</h2>
               <Badge className="mt-2 bg-green-100 text-green-700">+8.2%</Badge>
             </div>
             <div className="w-14 h-14 bg-green-500 rounded-full flex items-center justify-center">
@@ -72,23 +108,8 @@ const Dashboard = () => {
             </div>
           </CardContent>
         </Card>
-
-        <Card className="hover:shadow-lg transition-shadow">
-          <CardContent className="flex items-center justify-between">
-            <div>
-              <p className="text-gray-500 text-sm">Total Staff</p>
-              <h2 className="text-2xl font-bold">{stats.totalStaff}</h2>
-              <Badge className="mt-2 bg-purple-100 text-purple-700">
-                +5.3%
-              </Badge>
-            </div>
-            <div className="w-14 h-14 bg-purple-500 rounded-full flex items-center justify-center">
-              <UserPlus className="text-white w-6 h-6" />
-            </div>
-          </CardContent>
-        </Card>
       </div>
-
+ 
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-8">
         <Card>
           <CardHeader>
@@ -147,7 +168,7 @@ const Dashboard = () => {
           </CardContent>
         </Card>
       </div>
-
+ 
       <Card>
         <CardHeader>
           <CardTitle>Quick Actions</CardTitle>

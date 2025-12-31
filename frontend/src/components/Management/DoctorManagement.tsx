@@ -3,17 +3,15 @@ import {
   Search,
   UserPlus,
   Stethoscope,
-  Trash2,
-  Calendar,
-  UserRoundCheck,
-  UserRoundX,
+  Trash2, 
+  UserRoundCheck, 
   ChevronLeft,
   ChevronRight,
   Filter,
   Loader2,
   Upload,
   ImageIcon,
-  X
+  X,
 } from "lucide-react";
 import { Card, CardContent } from "../ui/card";
 import { Button } from "../ui/button";
@@ -45,7 +43,7 @@ import {
   SelectValue,
 } from "../ui/select";
 import { toast } from "sonner";
-import { fetchDoctors } from "../../Api/Patient";
+import { addDoctor, blockDoctor, fetchDoctors } from "../../Api/Management";
 
 interface DoctorData {
   _id: string;
@@ -63,6 +61,7 @@ interface DoctorData {
   status: string;
   createdAt: string;
   updatedAt: string;
+  image?: string;
 }
 
 const DoctorManagement = () => {
@@ -137,7 +136,10 @@ const DoctorManagement = () => {
 
   const indexOfLastItem = currentPage * itemsPerPage;
   const indexOfFirstItem = indexOfLastItem - itemsPerPage;
-  const currentDoctors = filteredDoctors.slice(indexOfFirstItem, indexOfLastItem);
+  const currentDoctors = filteredDoctors.slice(
+    indexOfFirstItem,
+    indexOfLastItem
+  );
   const totalPages = Math.ceil(filteredDoctors.length / itemsPerPage);
 
   const handleAddDoctor = async () => {
@@ -146,35 +148,72 @@ const DoctorManagement = () => {
         toast.error("Please fill required fields");
         return;
       }
-      toast.success("Doctor registered successfully!");
+      const fd = new FormData();
+      fd.append("name", formData.name);
+      fd.append("email", formData.email);
+      fd.append("specialization", formData.specialization);
+      fd.append("experience", formData.experience);
+      fd.append("qualification", formData.qualification);
+      fd.append("age", formData.age);
+      fd.append("description", formData.description);
+
+      if (formData.doctorImage) {
+        fd.append("image", formData.doctorImage);
+      }
+
+      console.log("================>", formData);
+      console.log("================>", formData.doctorImage);
+      console.log("================>", formData.doctorImage?.name);
+
+      await addDoctor(fd);
+
+      toast.success("Doctor registered successfully");
       setIsModalOpen(false);
       resetForm();
+
+      await loadDoctors();
     } catch (error: any) {
-      toast.error("Failed to add doctor");
+      toast.error(error?.response?.data?.message || "Failed to add doctor");
     }
   };
 
   const resetForm = () => {
     setFormData({
-      name: "", specialization: "", experience: "", email: "",
-      phone: "", qualification: "", age: "", description: "", doctorImage: null,
+      name: "",
+      specialization: "",
+      experience: "",
+      email: "",
+      phone: "",
+      qualification: "",
+      age: "",
+      description: "",
+      doctorImage: null,
     });
     setImagePreview(null);
   };
 
   const handleDelete = async (id: string) => {
-    if (confirm("Are you sure you want to remove this doctor?")) {
-      setDoctors(doctors.filter((doc) => doc._id !== id));
+    try {
+      await blockDoctor(id);
+
+      setDoctors((prev) => prev.filter((doc) => doc._id !== id));
+
       toast.success("Doctor removed successfully!");
+    } catch (error: any) {
+      toast.error(error?.response?.data?.message || "Failed to remove doctor");
     }
   };
 
   const getStatusBadge = (status: string) => {
     const isActive = status === "approved";
     return (
-      <Badge className={`px-2 py-0.5 text-[10px] font-bold border rounded-md ${
-          isActive ? "bg-emerald-50 text-emerald-700 border-emerald-200" : "bg-amber-50 text-amber-700 border-amber-200"
-        }`}>
+      <Badge
+        className={`px-2 py-0.5 text-[10px] font-bold border rounded-md ${
+          isActive
+            ? "bg-emerald-50 text-emerald-700 border-emerald-200"
+            : "bg-amber-50 text-amber-700 border-amber-200"
+        }`}
+      >
         {isActive ? "Approved" : "Pending"}
       </Badge>
     );
@@ -197,14 +236,23 @@ const DoctorManagement = () => {
 
   return (
     <div className="p-4 md:p-8 bg-slate-50/50 min-h-screen space-y-8 text-left">
-  
       <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
         <div>
-          <h1 className="text-3xl font-black tracking-tight text-slate-900">Doctor Management</h1>
-          <p className="text-muted-foreground text-sm font-medium">Register and oversee hospital medical staff.</p>
+          <h1 className="text-3xl font-black tracking-tight text-slate-900">
+            Doctor Management
+          </h1>
+          <p className="text-muted-foreground text-sm font-medium">
+            Register and oversee hospital medical staff.
+          </p>
         </div>
 
-        <Dialog open={isModalOpen} onOpenChange={(open) => { setIsModalOpen(open); if(!open) resetForm(); }}>
+        <Dialog
+          open={isModalOpen}
+          onOpenChange={(open) => {
+            setIsModalOpen(open);
+            if (!open) resetForm();
+          }}
+        >
           <DialogTrigger asChild>
             <Button className="bg-[#06332e] hover:bg-[#0a4d46] shadow-lg shadow-emerald-900/10">
               <UserPlus className="w-4 h-4 mr-2" /> Add New Doctor
@@ -212,8 +260,12 @@ const DoctorManagement = () => {
           </DialogTrigger>
           <DialogContent className="sm:max-w-150 max-h-[90vh] overflow-y-auto">
             <DialogHeader>
-              <DialogTitle className="text-2xl font-black">Register Professional</DialogTitle>
-              <DialogDescription className="font-medium">Upload profile photo and enter medical credentials.</DialogDescription>
+              <DialogTitle className="text-2xl font-black">
+                Register Professional
+              </DialogTitle>
+              <DialogDescription className="font-medium">
+                Upload profile photo and enter medical credentials.
+              </DialogDescription>
             </DialogHeader>
 
             <div className="grid gap-6 py-4">
@@ -221,8 +273,15 @@ const DoctorManagement = () => {
                 <div className="relative w-24 h-24 rounded-xl bg-white border flex items-center justify-center overflow-hidden shrink-0 shadow-sm">
                   {imagePreview ? (
                     <>
-                      <img src={imagePreview} alt="Preview" className="w-full h-full object-cover" />
-                      <button onClick={removeImage} className="absolute top-1 right-1 p-1 bg-rose-500 text-white rounded-full shadow-lg hover:bg-rose-600 transition-colors">
+                      <img
+                        src={imagePreview}
+                        alt="Preview"
+                        className="w-full h-full object-cover"
+                      />
+                      <button
+                        onClick={removeImage}
+                        className="absolute top-1 right-1 p-1 bg-rose-500 text-white rounded-full shadow-lg hover:bg-rose-600 transition-colors"
+                      >
                         <X className="w-3 h-3" />
                       </button>
                     </>
@@ -231,73 +290,229 @@ const DoctorManagement = () => {
                   )}
                 </div>
                 <div className="space-y-2">
-                  <Label className="text-sm font-black text-slate-700">Doctor's Photo</Label>
+                  <Label className="text-sm font-black text-slate-700">
+                    Doctor's Photo
+                  </Label>
                   <div className="flex items-center gap-2">
-                    <Input id="img-input" type="file" accept="image/*" className="hidden" onChange={handleImageChange} />
-                    <Button type="button" variant="outline" size="sm" className="font-bold h-9 border-slate-200 shadow-sm" onClick={() => document.getElementById('img-input')?.click()}>
-                      <Upload className="w-4 h-4 mr-2 text-[#f7a582]" /> Choose Image
+                    <Input
+                      id="img-input"
+                      type="file"
+                      accept="image/*"
+                      className="hidden"
+                      onChange={handleImageChange}
+                    />
+                    <Button
+                      type="button"
+                      variant="outline"
+                      size="sm"
+                      className="font-bold h-9 border-slate-200 shadow-sm"
+                      onClick={() =>
+                        document.getElementById("img-input")?.click()
+                      }
+                    >
+                      <Upload className="w-4 h-4 mr-2 text-[#f7a582]" /> Choose
+                      Image
                     </Button>
                   </div>
-                  <p className="text-[10px] text-slate-400 font-bold uppercase tracking-tighter italic">Max size: 2MB (JPG/PNG)</p>
+                  <p className="text-[10px] text-slate-400 font-bold uppercase tracking-tighter italic">
+                    Max size: 2MB (JPG/PNG)
+                  </p>
                 </div>
               </div>
 
               <div className="grid grid-cols-2 gap-4">
-                <div className="space-y-2"><Label className="font-bold">Full Name</Label><Input placeholder="Dr. Rahul Dev" value={formData.name} onChange={(e) => setFormData({ ...formData, name: e.target.value })} /></div>
-                <div className="space-y-2"><Label className="font-bold">Specialization</Label><Input placeholder="e.g. Cardiologist" value={formData.specialization} onChange={(e) => setFormData({ ...formData, specialization: e.target.value })} /></div>
-                <div className="space-y-2"><Label className="font-bold">Email</Label><Input type="email" placeholder="rahul@hospital.com" value={formData.email} onChange={(e) => setFormData({ ...formData, email: e.target.value })} /></div>
-                <div className="space-y-2"><Label className="font-bold">Phone</Label><Input placeholder="+91..." value={formData.phone} onChange={(e) => setFormData({ ...formData, phone: e.target.value })} /></div>
-                <div className="space-y-2"><Label className="font-bold">Qualification</Label><Input placeholder="MBBS, MD" value={formData.qualification} onChange={(e) => setFormData({ ...formData, qualification: e.target.value })} /></div>
+                <div className="space-y-2">
+                  <Label className="font-bold">Full Name</Label>
+                  <Input
+                    placeholder="Dr. Rahul Dev"
+                    value={formData.name}
+                    onChange={(e) =>
+                      setFormData({ ...formData, name: e.target.value })
+                    }
+                  />
+                </div>
+                <div className="space-y-2">
+                  <Label className="font-bold">Specialization</Label>
+                  <Input
+                    placeholder="e.g. Cardiologist"
+                    value={formData.specialization}
+                    onChange={(e) =>
+                      setFormData({
+                        ...formData,
+                        specialization: e.target.value,
+                      })
+                    }
+                  />
+                </div>
+                <div className="space-y-2">
+                  <Label className="font-bold">Email</Label>
+                  <Input
+                    type="email"
+                    placeholder="rahul@hospital.com"
+                    value={formData.email}
+                    onChange={(e) =>
+                      setFormData({ ...formData, email: e.target.value })
+                    }
+                  />
+                </div>
+                <div className="space-y-2">
+                  <Label className="font-bold">Phone</Label>
+                  <Input
+                    placeholder="+91..."
+                    value={formData.phone}
+                    onChange={(e) =>
+                      setFormData({ ...formData, phone: e.target.value })
+                    }
+                  />
+                </div>
+                <div className="space-y-2">
+                  <Label className="font-bold">Qualification</Label>
+                  <Input
+                    placeholder="MBBS, MD"
+                    value={formData.qualification}
+                    onChange={(e) =>
+                      setFormData({
+                        ...formData,
+                        qualification: e.target.value,
+                      })
+                    }
+                  />
+                </div>
                 <div className="grid grid-cols-2 gap-2">
-                  <div className="space-y-2"><Label className="font-bold">Exp (Yrs)</Label><Input type="number" value={formData.experience} onChange={(e) => setFormData({ ...formData, experience: e.target.value })} /></div>
-                  <div className="space-y-2"><Label className="font-bold">Age</Label><Input type="number" value={formData.age} onChange={(e) => setFormData({ ...formData, age: e.target.value })} /></div>
+                  <div className="space-y-2">
+                    <Label className="font-bold">Exp (Yrs)</Label>
+                    <Input
+                      type="number"
+                      value={formData.experience}
+                      onChange={(e) =>
+                        setFormData({ ...formData, experience: e.target.value })
+                      }
+                    />
+                  </div>
+                  <div className="space-y-2">
+                    <Label className="font-bold">Age</Label>
+                    <Input
+                      type="number"
+                      value={formData.age}
+                      onChange={(e) =>
+                        setFormData({ ...formData, age: e.target.value })
+                      }
+                    />
+                  </div>
                 </div>
               </div>
-              <div className="space-y-2"><Label className="font-bold">Description</Label><Input placeholder="Brief bio..." value={formData.description} onChange={(e) => setFormData({ ...formData, description: e.target.value })} /></div>
+              <div className="space-y-2">
+                <Label className="font-bold">Description</Label>
+                <Input
+                  placeholder="Brief bio..."
+                  value={formData.description}
+                  onChange={(e) =>
+                    setFormData({ ...formData, description: e.target.value })
+                  }
+                />
+              </div>
             </div>
 
             <DialogFooter className="border-t pt-4">
-              <Button variant="ghost" onClick={() => setIsModalOpen(false)} className="font-bold">Cancel</Button>
-              <Button className="bg-[#06332e] font-bold px-8" onClick={handleAddDoctor}>Register Professional</Button>
+              <Button
+                variant="ghost"
+                onClick={() => setIsModalOpen(false)}
+                className="font-bold"
+              >
+                Cancel
+              </Button>
+              <Button
+                className="bg-[#06332e] font-bold px-8"
+                onClick={handleAddDoctor}
+              >
+                Register Professional
+              </Button>
             </DialogFooter>
           </DialogContent>
         </Dialog>
       </div>
- 
+
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
         {[
-          { label: "Total Doctors", val: stats.total, icon: Stethoscope, color: "text-indigo-600", bg: "bg-white" },
-          { label: "Approved", val: stats.approved, icon: UserRoundCheck, color: "text-emerald-600", bg: "bg-white" },
-          { label: "Pending", val: stats.pending, icon: UserRoundX, color: "text-amber-600", bg: "bg-white" },
-          { label: "Active", val: stats.active, icon: Calendar, color: "text-white", bg: "bg-[#06332e]" },
+          {
+            label: "Total Doctors",
+            val: stats.total,
+            icon: Stethoscope,
+            color: "text-indigo-600",
+            bg: "bg-white",
+          },
+          {
+            label: "Approved",
+            val: stats.approved,
+            icon: UserRoundCheck,
+            color: "text-emerald-600",
+            bg: "bg-white",
+          },
         ].map((s, i) => (
-          <Card key={i} className={`border-none shadow-sm ring-1 ring-slate-200 ${s.bg}`}>
+          <Card
+            key={i}
+            className={`border-none shadow-sm ring-1 ring-slate-200 ${s.bg}`}
+          >
             <CardContent className="p-5 flex items-center justify-between">
               <div>
-                <p className={`text-[10px] font-black uppercase tracking-widest mb-1 ${s.color === 'text-white' ? 'opacity-70' : 'text-slate-400'}`}>{s.label}</p>
-                <h3 className={`text-2xl font-black ${s.color === 'text-white' ? 'text-white' : 'text-slate-800'}`}>{s.val}</h3>
+                <p
+                  className={`text-[10px] font-black uppercase tracking-widest mb-1 ${
+                    s.color === "text-white" ? "opacity-70" : "text-slate-400"
+                  }`}
+                >
+                  {s.label}
+                </p>
+                <h3
+                  className={`text-2xl font-black ${
+                    s.color === "text-white" ? "text-white" : "text-slate-800"
+                  }`}
+                >
+                  {s.val}
+                </h3>
               </div>
-              <div className={`h-10 w-10 rounded-xl flex items-center justify-center ${s.color === 'text-white' ? 'bg-white/10' : 'bg-slate-50'}`}><s.icon className={`w-5 h-5 ${s.color}`} /></div>
+              <div
+                className={`h-10 w-10 rounded-xl flex items-center justify-center ${
+                  s.color === "text-white" ? "bg-white/10" : "bg-slate-50"
+                }`}
+              >
+                <s.icon className={`w-5 h-5 ${s.color}`} />
+              </div>
             </CardContent>
           </Card>
         ))}
       </div>
- 
+
       <Card className="border-none shadow-sm ring-1 ring-slate-200 overflow-hidden bg-white">
         <div className="p-4 border-b flex flex-col sm:flex-row gap-4 justify-between items-center">
           <div className="relative w-full sm:w-80">
             <Search className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-400 w-4 h-4" />
-            <Input placeholder="Search doctor name..." className="pl-9 h-10 bg-slate-50/50 border-slate-100" value={searchQuery} onChange={(e) => setSearchQuery(e.target.value)} />
+            <Input
+              placeholder="Search doctor name..."
+              className="pl-9 h-10 bg-slate-50/50 border-slate-100"
+              value={searchQuery}
+              onChange={(e) => setSearchQuery(e.target.value)}
+            />
           </div>
           <div className="flex items-center gap-2 w-full sm:w-auto">
             <Filter className="w-4 h-4 text-slate-400" />
-            <Select onValueChange={(val) => { setSpecialtyFilter(val); setCurrentPage(1); }}>
+            <Select
+              onValueChange={(val) => {
+                setSpecialtyFilter(val);
+                setCurrentPage(1);
+              }}
+            >
               <SelectTrigger className="w-full sm:w-52 h-10 border-slate-200 font-medium text-slate-600">
                 <SelectValue placeholder="All Specializations" />
               </SelectTrigger>
               <SelectContent>
                 <SelectItem value="all">All Specializations</SelectItem>
-                {Array.from(new Set(doctors.map(d => d.specialization))).map(s => <SelectItem key={s} value={s.toLowerCase()}>{s}</SelectItem>)}
+                {Array.from(new Set(doctors.map((d) => d.specialization))).map(
+                  (s) => (
+                    <SelectItem key={s} value={s.toLowerCase()}>
+                      {s}
+                    </SelectItem>
+                  )
+                )}
               </SelectContent>
             </Select>
           </div>
@@ -307,24 +522,66 @@ const DoctorManagement = () => {
           <Table>
             <TableHeader className="bg-slate-50/50">
               <TableRow className="border-slate-100">
-                <TableHead className="font-black text-slate-800 uppercase text-[10px]">Doctor Info</TableHead>
-                <TableHead className="font-black text-slate-800 uppercase text-[10px]">Specialization</TableHead>
-                <TableHead className="font-black text-slate-800 uppercase text-[10px]">Status</TableHead>
-                <TableHead className="font-black text-slate-800 uppercase text-[10px]">Email</TableHead>
-                <TableHead className="font-black text-slate-800 uppercase text-[10px]">Experience</TableHead>
-                <TableHead className="font-black text-slate-800 uppercase text-[10px] text-right pr-6">Actions</TableHead>
+                <TableHead className="font-black text-slate-800 uppercase text-[10px]">
+                  Doctor Info
+                </TableHead>
+                <TableHead className="font-black text-slate-800 uppercase text-[10px]">
+                  Specialization
+                </TableHead>
+                <TableHead className="font-black text-slate-800 uppercase text-[10px]">
+                  Status
+                </TableHead>
+                <TableHead className="font-black text-slate-800 uppercase text-[10px]">
+                  Email
+                </TableHead>
+                <TableHead className="font-black text-slate-800 uppercase text-[10px]">
+                  Experience
+                </TableHead>
+                <TableHead className="font-black text-slate-800 uppercase text-[10px] text-right pr-6">
+                  Actions
+                </TableHead>
               </TableRow>
             </TableHeader>
             <TableBody>
               {currentDoctors.map((doc) => (
-                <TableRow key={doc._id} className="border-slate-50 hover:bg-slate-50/30 transition-colors">
-                  <TableCell className="font-bold text-slate-800">{doc.userId.name}</TableCell>
-                  <TableCell><Badge variant="outline" className="font-bold text-blue-600 bg-blue-50/50 border-none text-[10px]">{doc.specialization}</Badge></TableCell>
+                <TableRow
+                  key={doc._id}
+                  className="border-slate-50 hover:bg-slate-50/30 transition-colors"
+                >
+                  <div className="flex items-center ml-1 ">
+                    <div className="h-10 w-10 overflow-hidden   rounded-full">
+                      <img
+                        src={doc.image || "/doctor-placeholder.png"}
+                        alt="doctor"
+                        className="w-full h-full object-cover"
+                      />
+                    </div>
+                    <TableCell className="font-bold text-slate-800">
+                      {doc.userId.name}
+                    </TableCell>
+                  </div>
+                  <TableCell>
+                    <Badge
+                      variant="outline"
+                      className="font-bold text-blue-600 bg-blue-50/50 border-none text-[10px]"
+                    >
+                      {doc.specialization}
+                    </Badge>
+                  </TableCell>
                   <TableCell>{getStatusBadge(doc.status)}</TableCell>
-                  <TableCell className="text-xs text-slate-600 font-medium">{doc.userId.email}</TableCell>
-                  <TableCell className="font-bold text-slate-500 text-sm">{doc.experience} Years</TableCell>
+                  <TableCell className="text-xs text-slate-600 font-medium">
+                    {doc.userId.email}
+                  </TableCell>
+                  <TableCell className="font-bold text-slate-500 text-sm">
+                    {doc.experience} Years
+                  </TableCell>
                   <TableCell className="text-right pr-6">
-                    <Button variant="ghost" size="icon" className="h-8 w-8 text-slate-400 hover:text-rose-600 hover:bg-rose-50 rounded-full" onClick={() => handleDelete(doc._id)}>
+                    <Button
+                      variant="ghost"
+                      size="icon"
+                      className="h-8 w-8 text-slate-400 hover:text-rose-600 hover:bg-rose-50 rounded-full"
+                      onClick={() => handleDelete(doc._id)}
+                    >
                       <Trash2 className="w-4 h-4" />
                     </Button>
                   </TableCell>
@@ -335,10 +592,28 @@ const DoctorManagement = () => {
         </div>
 
         <div className="p-4 bg-slate-50/30 border-t flex flex-col sm:flex-row items-center justify-between gap-4">
-          <p className="text-[11px] font-bold text-slate-400 uppercase tracking-widest italic">Page {currentPage} of {totalPages || 1}</p>
+          <p className="text-[11px] font-bold text-slate-400 uppercase tracking-widest italic">
+            Page {currentPage} of {totalPages || 1}
+          </p>
           <div className="flex items-center gap-2">
-            <Button variant="outline" size="sm" className="h-8 px-3 font-bold text-xs" onClick={() => setCurrentPage(p => Math.max(p - 1, 1))} disabled={currentPage === 1}><ChevronLeft className="w-4 h-4 mr-1" /> Prev</Button>
-            <Button variant="outline" size="sm" className="h-8 px-3 font-bold text-xs" onClick={() => setCurrentPage(p => Math.min(p + 1, totalPages))} disabled={currentPage === totalPages}>Next <ChevronRight className="w-4 h-4 ml-1" /></Button>
+            <Button
+              variant="outline"
+              size="sm"
+              className="h-8 px-3 font-bold text-xs"
+              onClick={() => setCurrentPage((p) => Math.max(p - 1, 1))}
+              disabled={currentPage === 1}
+            >
+              <ChevronLeft className="w-4 h-4 mr-1" /> Prev
+            </Button>
+            <Button
+              variant="outline"
+              size="sm"
+              className="h-8 px-3 font-bold text-xs"
+              onClick={() => setCurrentPage((p) => Math.min(p + 1, totalPages))}
+              disabled={currentPage === totalPages}
+            >
+              Next <ChevronRight className="w-4 h-4 ml-1" />
+            </Button>
           </div>
         </div>
       </Card>
